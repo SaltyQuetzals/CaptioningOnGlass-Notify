@@ -42,7 +42,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun buildNotificationServiceAlertDialog(): AlertDialog? {
         val alertDialogBuilder: AlertDialog.Builder = AlertDialog.Builder(this)
-        alertDialogBuilder.setTitle("GlassEcho")
+        alertDialogBuilder.setTitle("CoG - Notify")
         alertDialogBuilder.setMessage("Needs permission.")
         alertDialogBuilder.setPositiveButton(
             "Yes"
@@ -61,6 +61,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-        const val SHARED_PREFS = "dev.synople.glassecho.sharedprefs"
+        const val SHARED_PREFS = "edu.gatech.cog.notify.sharedprefs"
     }
 }

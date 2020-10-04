@@ -2,7 +2,7 @@ package edu.gatech.cog.notify.common
 
 import java.util.*
 
-val glassEchoUUID: UUID = UUID.fromString("dc844862-9170-49e3-a299-4437b2680369")
+val cogNotifyUUID: UUID = UUID.fromString("dc844862-9170-49e3-a299-4437b2680369")
 
 const val CHUNK_SIZE = 800 // Chunks of 800 bytes
 const val APP_ICON_SIZE = 100

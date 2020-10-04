@@ -167,7 +167,7 @@ class ConnectFragment : Fragment() {
     private fun startQrCodeScanner() {
         IntentIntegrator.forFragment(this)
             .setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
-            .setPrompt("Open GlassEcho on your phone and scan the QR code")
+            .setPrompt("Open CoG-Notify on your phone and scan the QR code")
             .setBeepEnabled(false)
             .setBarcodeImageEnabled(false)
             .initiateScan()

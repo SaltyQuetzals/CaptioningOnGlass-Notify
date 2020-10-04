@@ -10,7 +10,7 @@ import com.google.zxing.BarcodeFormat
 import com.journeyapps.barcodescanner.BarcodeEncoder
 import edu.gatech.cog.notify.common.CHUNK_SIZE
 import edu.gatech.cog.notify.common.NOTIFICATION
-import edu.gatech.cog.notify.common.glassEchoUUID
+import edu.gatech.cog.notify.common.cogNotifyUUID
 import edu.gatech.cog.notify.common.models.GlassNotification
 import edu.gatech.cog.notify.phone.R
 import kotlinx.android.synthetic.main.fragment_home.*
@@ -82,7 +82,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         private fun establishConnection(): BluetoothSocket? {
             val serverSocket = BluetoothAdapter.getDefaultAdapter()
-                .listenUsingRfcommWithServiceRecord("edu.gatech.cog.notify", glassEchoUUID)
+                .listenUsingRfcommWithServiceRecord("edu.gatech.cog.notify", cogNotifyUUID)
             val socket = try {
                 serverSocket.accept()
             } catch (e: IOException) {

@@ -7,7 +7,7 @@ import android.content.Intent
 import android.os.IBinder
 import android.util.Log
 import edu.gatech.cog.notify.common.NOTIFICATION
-import edu.gatech.cog.notify.common.glassEchoUUID
+import edu.gatech.cog.notify.common.cogNotifyUUID
 import edu.gatech.cog.notify.common.models.GlassNotification
 import java.io.IOException
 import java.nio.charset.Charset
@@ -126,7 +126,7 @@ class SourceConnectionService : Service() {
 
         private fun establishConnection(): BluetoothSocket? {
             try {
-                val socket = bluetoothDevice.createRfcommSocketToServiceRecord(glassEchoUUID)
+                val socket = bluetoothDevice.createRfcommSocketToServiceRecord(cogNotifyUUID)
 
                 socket.connect()
                 Log.v(

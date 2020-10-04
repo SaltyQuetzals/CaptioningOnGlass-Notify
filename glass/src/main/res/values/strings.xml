@@ -1,7 +1,7 @@
 <resources>
-    <string name="app_name">GlassEcho</string>
-    <string name="title_activity_live_card_service">GlassEcho LiveCard</string>
-    <string name="voice_trigger">Echo</string>
+    <string name="app_name">CoG - Notify</string>
+    <string name="title_activity_live_card_service">CoG-Notify LiveCard</string>
+    <string name="voice_trigger">Captioning Notify</string>
 
     <string name="action_connect">Connect</string>
     <string name="action_forget_device">Forget device</string>
