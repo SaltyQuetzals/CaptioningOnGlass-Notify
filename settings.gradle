@@ -1,0 +1,2 @@
+include ':common', ':glass', ':phone'
+rootProject.name = "CoG-Notify"
