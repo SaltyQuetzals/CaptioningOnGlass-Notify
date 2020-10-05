@@ -10,13 +10,7 @@ import android.content.IntentFilter
 import android.media.AudioManager
 import android.os.Bundle
 import android.util.Log
-import android.view.KeyEvent
-import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import com.google.zxing.integration.android.IntentIntegrator
 import edu.gatech.cog.notify.common.GLASS_SOUND_SUCCESS
 import edu.gatech.cog.notify.glass.Constants
@@ -81,7 +75,7 @@ class ConnectFragment : Fragment() {
                             .beginTransaction()
                             .replace(
                                 R.id.frameLayoutMain,
-                                NotificationTimelineFragment.newInstance()
+                                NotifyDisplayFragment.newInstance()
                             )
                             .commit()
                     } else {
