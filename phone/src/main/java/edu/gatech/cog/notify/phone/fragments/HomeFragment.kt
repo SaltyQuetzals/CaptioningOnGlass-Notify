@@ -29,11 +29,13 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         super.onViewCreated(view, savedInstanceState)
 
         connectedThread = ConnectedThread()
+        connectedThread.start()
         setQrCode()
 
         btnNotify.setOnClickListener {
             val notifyText = etMessage.text.toString()
             val isVibrate = toggleVibrate.isChecked
+            Log.v(TAG, "$notifyText, $isVibrate")
             connectedThread.write(GlassNotification(notifyText, isVibrate))
         }
     }
