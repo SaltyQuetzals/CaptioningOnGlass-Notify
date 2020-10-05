@@ -37,6 +37,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             val isVibrate = toggleVibrate.isChecked
             Log.v(TAG, "$notifyText, $isVibrate")
             connectedThread.write(GlassNotification(notifyText, isVibrate))
+
+            etMessage.setText("")
         }
     }
 
