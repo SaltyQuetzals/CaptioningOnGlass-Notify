@@ -1,9 +1,7 @@
 package edu.gatech.cog.notify.common.models
 
-import android.os.Parcel
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
-import java.util.regex.Pattern
 
 @Parcelize
 data class GlassNotification(
@@ -13,12 +11,12 @@ data class GlassNotification(
 
     companion object {
         fun convert(string: String): GlassNotification {
-            val contents = string.split(Pattern.quote("|"))
+            val contents = string.split(";")
             return GlassNotification(contents[0], contents[1].toBoolean())
         }
 
         fun convert(glassNotification: GlassNotification): String {
-            return "${glassNotification.text}|${glassNotification.isVibrate}"
+            return "${glassNotification.text};${glassNotification.isVibrate}"
         }
     }
 }

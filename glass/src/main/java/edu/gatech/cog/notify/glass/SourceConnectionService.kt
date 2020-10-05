@@ -156,6 +156,8 @@ class SourceConnectionService : Service() {
                 isRunning.set(false)
             } catch (e: IOException) {
                 Log.e(TAG, "cancel", e)
+            } catch (e: UninitializedPropertyAccessException) {
+                Log.e(TAG, "uninit bluetoothSocket", e)
             }
         }
     }
