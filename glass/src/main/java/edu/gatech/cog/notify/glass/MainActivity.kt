@@ -12,7 +12,7 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // TODO: Add in flag to keep screen on
+        // TODO: Add in flag to keep screen on?
 
         window.decorView.apply {
             systemUiVisibility =
