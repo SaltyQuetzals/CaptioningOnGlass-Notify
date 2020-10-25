@@ -8,15 +8,12 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import com.google.zxing.BarcodeFormat
 import com.journeyapps.barcodescanner.BarcodeEncoder
-import edu.gatech.cog.notify.common.CHUNK_SIZE
-import edu.gatech.cog.notify.common.NOTIFICATION
 import edu.gatech.cog.notify.common.cogNotifyUUID
 import edu.gatech.cog.notify.common.models.GlassNotification
 import edu.gatech.cog.notify.phone.R
-import kotlinx.android.synthetic.main.fragment_home.*
+import edu.gatech.cog.notify.phone.databinding.FragmentHomeBinding
 import java.io.IOException
 import java.io.ObjectOutputStream
-import java.nio.charset.Charset
 import java.util.concurrent.atomic.AtomicBoolean
 
 
@@ -31,23 +28,26 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         connectedThread = ConnectedThread()
         connectedThread.start()
-        setQrCode()
 
-        btnNotify.setOnClickListener {
-            val notifyText = etMessage.text.toString()
-            val isVibrate = toggleVibrate.isChecked
-            Log.v(TAG, "$notifyText, $isVibrate")
-            connectedThread.write(GlassNotification(notifyText, isVibrate))
+        FragmentHomeBinding.bind(view).apply {
+            ivQrCode.setImageBitmap(
+                BarcodeEncoder().encodeBitmap(
+                    BluetoothAdapter.getDefaultAdapter().name,
+                    BarcodeFormat.QR_CODE,
+                    800,
+                    800
+                )
+            )
 
-            etMessage.setText("")
+            btnNotify.setOnClickListener {
+                val notifyText = etMessage.text.toString()
+                val isVibrate = toggleVibrate.isChecked
+                Log.v(TAG, "$notifyText, $isVibrate")
+                connectedThread.write(GlassNotification(notifyText, isVibrate))
+
+                etMessage.setText("")
+            }
         }
-    }
-
-    private fun setQrCode() {
-        val bluetoothName = BluetoothAdapter.getDefaultAdapter().name
-        val qrCodeBitmap =
-            BarcodeEncoder().encodeBitmap(bluetoothName, BarcodeFormat.QR_CODE, 800, 800)
-        ivQrCode.setImageBitmap(qrCodeBitmap)
     }
 
     override fun onDestroy() {

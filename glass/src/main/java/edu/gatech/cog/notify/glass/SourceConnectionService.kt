@@ -7,12 +7,10 @@ import android.content.Intent
 import android.os.IBinder
 import android.os.Parcelable
 import android.util.Log
-import edu.gatech.cog.notify.common.NOTIFICATION
 import edu.gatech.cog.notify.common.cogNotifyUUID
 import edu.gatech.cog.notify.common.models.GlassNotification
 import java.io.IOException
 import java.io.ObjectInputStream
-import java.nio.charset.Charset
 import java.util.concurrent.atomic.AtomicBoolean
 
 private val TAG = SourceConnectionService::class.java.simpleName

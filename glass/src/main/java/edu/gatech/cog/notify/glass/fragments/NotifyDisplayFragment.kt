@@ -1,6 +1,5 @@
 package edu.gatech.cog.notify.glass.fragments
 
-import android.app.Fragment
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -8,18 +7,20 @@ import android.content.IntentFilter
 import android.media.AudioManager
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import edu.gatech.cog.notify.common.GLASS_SOUND_TAP
 import edu.gatech.cog.notify.common.models.GlassNotification
 import edu.gatech.cog.notify.glass.Constants
 import edu.gatech.cog.notify.glass.R
-import kotlinx.android.synthetic.main.fragment_notify_display.*
+import edu.gatech.cog.notify.glass.databinding.FragmentNotifyDisplayBinding
 
 private val TAG = NotifyDisplayFragment::class.java.simpleName
 
-class NotifyDisplayFragment : Fragment() {
+class NotifyDisplayFragment : Fragment(R.layout.fragment_notify_display) {
+
+    private var _binding: FragmentNotifyDisplayBinding? = null
+    private val binding get() = _binding!!
 
     private val notificationReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -34,30 +35,34 @@ class NotifyDisplayFragment : Fragment() {
                     }
                 }
 
-                activity.runOnUiThread {
-                    tvContent.text = it.text
+                requireActivity().runOnUiThread {
+                    binding.tvContent.text = it.text
                 }
             }
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        activity.registerReceiver(
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        _binding = FragmentNotifyDisplayBinding.bind(view)
+
+        requireActivity().registerReceiver(
             notificationReceiver,
             IntentFilter(Constants.INTENT_FILTER_NOTIFICATION)
         )
+    }
 
-        return inflater.inflate(R.layout.fragment_notify_display, container, false)!!
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
     }
 
     override fun onDestroy() {
         super.onDestroy()
 
         try {
-            activity.unregisterReceiver(notificationReceiver)
+            requireActivity().unregisterReceiver(notificationReceiver)
         } catch (e: IllegalArgumentException) {
             Log.e(TAG, "notificationReceiver not registered", e)
         }
