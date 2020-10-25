@@ -15,6 +15,7 @@ import edu.gatech.cog.notify.common.models.GlassNotification
 import edu.gatech.cog.notify.phone.R
 import kotlinx.android.synthetic.main.fragment_home.*
 import java.io.IOException
+import java.io.ObjectOutputStream
 import java.nio.charset.Charset
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -98,47 +99,11 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             return socket
         }
 
-        fun write(glassNotification: GlassNotification) {
-            Log.v(TAG, "Writing: $glassNotification")
-            val byteArray = GlassNotification.convert(glassNotification).toByteArray()
-            val chunkedByteArray = mutableListOf<ByteArray>()
-
-            if (byteArray.size > CHUNK_SIZE) {
-                for (i in 0 until byteArray.size - CHUNK_SIZE step CHUNK_SIZE) {
-                    chunkedByteArray.add(byteArray.copyOfRange(i, i + CHUNK_SIZE))
-                }
-                chunkedByteArray.add(
-                    byteArray.copyOfRange(
-                        byteArray.size - (byteArray.size % CHUNK_SIZE),
-                        byteArray.size
-                    )
-                )
-            } else {
-                chunkedByteArray.add(byteArray)
-            }
-
-            val meta = NOTIFICATION + chunkedByteArray.size
-            write(meta.toByteArray())
-
-            chunkedByteArray.forEach {
-                write(it)
-            }
+        fun write(echoNotification: GlassNotification) {
+            val objectOutputStream = ObjectOutputStream(bluetoothSocket?.outputStream)
+            objectOutputStream.writeObject(echoNotification)
         }
 
-        private fun write(bytes: ByteArray) {
-            try {
-                bluetoothSocket?.outputStream?.let { outputStream ->
-                    Log.v(TAG, "Writing: ${String(bytes, Charset.defaultCharset())}")
-
-                    outputStream.write(bytes)
-                    outputStream.flush()
-                }
-            } catch (e: IOException) {
-                Log.e(TAG, "write()", e)
-            }
-        }
-
-        /* Call this from the main activity to shutdown the connection */
         fun cancel() {
             try {
                 isRunning.set(false)
