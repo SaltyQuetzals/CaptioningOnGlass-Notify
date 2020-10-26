@@ -8,16 +8,4 @@ import java.io.Serializable
 data class GlassNotification(
     val text: String,
     val isVibrate: Boolean,
-) : Parcelable, Serializable {
-
-    companion object {
-        fun convert(string: String): GlassNotification {
-            val contents = string.split(";")
-            return GlassNotification(contents[0], contents[1].toBoolean())
-        }
-
-        fun convert(glassNotification: GlassNotification): String {
-            return "${glassNotification.text};${glassNotification.isVibrate}"
-        }
-    }
-}
+) : Parcelable, Serializable
