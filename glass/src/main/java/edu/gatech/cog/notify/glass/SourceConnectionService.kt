@@ -5,12 +5,14 @@ import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothSocket
 import android.content.Intent
 import android.os.IBinder
-import android.os.Parcelable
 import android.util.Log
 import edu.gatech.cog.notify.common.cogNotifyUUID
 import edu.gatech.cog.notify.common.models.GlassNotification
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
 import java.io.IOException
 import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
 import java.util.concurrent.atomic.AtomicBoolean
 
 private val TAG = SourceConnectionService::class.java.simpleName
@@ -54,14 +56,8 @@ class SourceConnectionService : Service() {
             while (isConnected && isRunning.get()) {
                 try {
                     val objectInputStream = ObjectInputStream(bluetoothSocket.inputStream)
-                    Intent().also { intent ->
-                        intent.action = Constants.INTENT_FILTER_NOTIFICATION
-                        intent.putExtra(
-                            Constants.MESSAGE,
-                            (objectInputStream.readObject() as GlassNotification) as Parcelable
-                        )
-                        sendBroadcast(intent)
-                    }
+                    val glassNotification = objectInputStream.readObject() as GlassNotification
+                    EventBus.getDefault().post(glassNotification)
                 } catch (e: IOException) {
                     Log.e(TAG, "Potential socket disconnect. Attempting to reconnect", e)
                     // Attempt to reconnect
@@ -105,7 +101,7 @@ class SourceConnectionService : Service() {
 
         fun cancel() {
             try {
-                bluetoothSocket?.close()
+                bluetoothSocket.close()
                 isRunning.set(false)
                 Log.v(TAG, "Cancel")
             } catch (e: IOException) {
@@ -120,16 +116,16 @@ class SourceConnectionService : Service() {
                 statusIntent.action = Constants.INTENT_FILTER_DEVICE_CONNECT_STATUS
                 statusIntent.putExtra(
                     Constants.EXTRA_DEVICE_IS_CONNECTED,
-                    bluetoothSocket?.isConnected
+                    bluetoothSocket.isConnected
                 )
-                if (bluetoothSocket?.isConnected == true) {
+                if (bluetoothSocket.isConnected) {
                     statusIntent.putExtra(
                         Constants.EXTRA_DEVICE_NAME,
-                        bluetoothSocket?.remoteDevice?.name
+                        bluetoothSocket.remoteDevice?.name
                     )
                     statusIntent.putExtra(
                         Constants.EXTRA_DEVICE_ADDRESS,
-                        bluetoothSocket?.remoteDevice?.address
+                        bluetoothSocket.remoteDevice?.address
                     )
                 }
                 sendBroadcast(statusIntent)
