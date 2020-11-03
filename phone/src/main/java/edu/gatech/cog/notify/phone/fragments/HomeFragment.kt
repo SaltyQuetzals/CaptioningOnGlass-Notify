@@ -13,6 +13,7 @@ import edu.gatech.cog.notify.common.models.GlassNotification
 import edu.gatech.cog.notify.phone.R
 import edu.gatech.cog.notify.phone.databinding.FragmentHomeBinding
 import java.io.IOException
+import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -68,11 +69,10 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
             while (bluetoothSocket?.isConnected == true && isRunning.get()) {
                 try {
-                    bluetoothSocket?.inputStream?.let { inputStream ->
-                        val bytes = inputStream.read(buffer)
-                        val incomingMessage = String(buffer, 0, bytes)
-                        Log.v(TAG, "incomingMessage: $incomingMessage")
-                    }
+                    val objectInputStream = ObjectInputStream(bluetoothSocket?.inputStream)
+                    val data = objectInputStream.readObject()
+
+                    // TODO: Handle data
                 } catch (e: IOException) {
                     Log.e(TAG, "run()", e)
 
