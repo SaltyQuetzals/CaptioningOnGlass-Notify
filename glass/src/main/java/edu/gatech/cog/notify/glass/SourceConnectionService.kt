@@ -40,9 +40,20 @@ class SourceConnectionService : Service() {
         return START_STICKY
     }
 
+    override fun onCreate() {
+        super.onCreate()
+        EventBus.getDefault().register(this)
+    }
+
     override fun onDestroy() {
+        EventBus.getDefault().unregister(this)
         super.onDestroy()
         createSocketThread?.cancel()
+    }
+
+    @Subscribe
+    private fun onWriteToPhone(data: Any) {
+        createSocketThread?.write(data)
     }
 
     inner class ConnectedThread(private val bluetoothDevice: BluetoothDevice) : Thread() {
@@ -66,6 +77,11 @@ class SourceConnectionService : Service() {
             }
 
             cancel()
+        }
+
+        fun write(data: Any) {
+            val objectOutputStream = ObjectOutputStream(bluetoothSocket.outputStream)
+            objectOutputStream.writeObject(data)
         }
 
         private fun init(): Boolean {

@@ -48,6 +48,10 @@ class NotifyDisplayFragment : Fragment(R.layout.fragment_notify_display) {
         Log.v(TAG, glassGesture.gesture.name)
     }
 
+    private fun writeToPhone(data: Any) {
+        EventBus.getDefault().post(data)
+    }
+
     override fun onDestroyView() {
         _binding = null
         super.onDestroyView()
