@@ -12,8 +12,11 @@ import androidx.fragment.app.Fragment
 import edu.gatech.cog.notify.common.GLASS_SOUND_TAP
 import edu.gatech.cog.notify.common.models.GlassNotification
 import edu.gatech.cog.notify.glass.Constants
+import edu.gatech.cog.notify.glass.GlassGesture
 import edu.gatech.cog.notify.glass.R
 import edu.gatech.cog.notify.glass.databinding.FragmentNotifyDisplayBinding
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
 
 private val TAG = NotifyDisplayFragment::class.java.simpleName
 
@@ -53,13 +56,24 @@ class NotifyDisplayFragment : Fragment(R.layout.fragment_notify_display) {
         )
     }
 
+    @Subscribe
+    private fun onGesture(glassGesture: GlassGesture) {
+        Log.v(TAG, glassGesture.gesture.name)
+    }
+
     override fun onDestroyView() {
         _binding = null
         super.onDestroyView()
     }
 
+    override fun onStart() {
+        super.onStart()
+        EventBus.getDefault().register(this)
+    }
+
     override fun onDestroy() {
         super.onDestroy()
+        EventBus.getDefault().unregister(this)
 
         try {
             requireActivity().unregisterReceiver(notificationReceiver)
