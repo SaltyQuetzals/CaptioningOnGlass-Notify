@@ -52,7 +52,7 @@ class SourceConnectionService : Service() {
     }
 
     @Subscribe
-    private fun onWriteToPhone(data: Any) {
+    public fun onWriteToPhone(data: Any) {
         createSocketThread?.write(data)
     }
 
