@@ -1,5 +1,6 @@
 package edu.gatech.cog.notify.glass.fragments
 
+import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.content.BroadcastReceiver
@@ -32,13 +33,23 @@ class ConnectFragment : Fragment(R.layout.fragment_connect) {
 
     private var pairDeviceReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            if (intent.action == BluetoothDevice.ACTION_FOUND) {
-                intent.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)?.let {
-                    if (it.name == deviceName) {
-                        BluetoothAdapter.getDefaultAdapter().cancelDiscovery()
-                        requireActivity().unregisterReceiver(this)
+            when (intent.action) {
+                BluetoothDevice.ACTION_FOUND -> {
+                    // Discovery has found a device. Get the BluetoothDevice object and its info from the Intent.
+                    intent.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)?.let {
+                        Log.i("$TAG/onReceive", "${it.name} ?= $deviceName")
+                        if (it.name == deviceName) {
+                            // We've got a match! This device name matches the one we're looking for.
 
-                        startBluetoothService(it)
+                            // Shut off discovery mode, we don't need it anymore
+                            BluetoothAdapter.getDefaultAdapter().cancelDiscovery()
+
+                            // Unregister this receiver, we won't be calling it from now on
+                            requireActivity().unregisterReceiver(this)
+
+                            // Start the BluetoothService with the desired device
+                            startBluetoothService(it)
+                        }
                     }
                 }
             }
@@ -157,13 +168,17 @@ class ConnectFragment : Fragment(R.layout.fragment_connect) {
 
     private fun connectToDevice(deviceName: String) {
         checkPairedDevices(deviceName)?.let {
+            Log.i("$TAG/connectToDevice", "$deviceName seen before, going to startBluetoothService")
             startBluetoothService(it)
         } ?: run {
+
+            Log.i("$TAG/connectToDevice", "$deviceName never seen before, going to try and pair")
             pairDevice(deviceName)
         }
     }
 
     private fun checkPairedDevices(deviceName: String): BluetoothDevice? {
+        Log.i("$TAG/checkPairedDevices", "Previously paired device names:")
         BluetoothAdapter.getDefaultAdapter()
             .bondedDevices.iterator()
             .forEach {
@@ -173,9 +188,11 @@ class ConnectFragment : Fragment(R.layout.fragment_connect) {
     }
 
     private fun pairDevice(deviceName: String) {
+        Log.i("$TAG/pairDevice", "Attempting to start discovering devices...")
         val isDiscovering = BluetoothAdapter.getDefaultAdapter().startDiscovery()
 
         if (isDiscovering) {
+            Log.i("$TAG/pairDevice", "In discovery mode")
             this.deviceName = deviceName
             requireActivity().registerReceiver(
                 pairDeviceReceiver,
@@ -187,6 +204,9 @@ class ConnectFragment : Fragment(R.layout.fragment_connect) {
     }
 
     private fun startBluetoothService(bluetoothDevice: BluetoothDevice) {
+        Log.d(
+            TAG, "Attempting to connect to \"${bluetoothDevice.name}...\""
+        )
         requireActivity().registerReceiver(
             deviceStatusReceiver,
             IntentFilter(Constants.INTENT_FILTER_DEVICE_CONNECT_STATUS)

@@ -8,7 +8,6 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import edu.gatech.cog.notify.common.GLASS_SOUND_TAP
 import edu.gatech.cog.notify.common.models.GlassNotification
-import edu.gatech.cog.notify.glass.GlassGesture
 import edu.gatech.cog.notify.glass.R
 import edu.gatech.cog.notify.glass.databinding.FragmentNotifyDisplayBinding
 import org.greenrobot.eventbus.EventBus
@@ -27,7 +26,7 @@ class NotifyDisplayFragment : Fragment(R.layout.fragment_notify_display) {
     }
 
     @Subscribe
-    private fun onReceiveNotification(glassNotification: GlassNotification) {
+    fun onReceiveNotification(glassNotification: GlassNotification) {
         Log.v(TAG, "GlassNotification\n${glassNotification.text}: ${glassNotification.isVibrate}")
 
         if (glassNotification.isVibrate) {
@@ -41,11 +40,6 @@ class NotifyDisplayFragment : Fragment(R.layout.fragment_notify_display) {
         requireActivity().runOnUiThread {
             binding.tvContent.text = glassNotification.text
         }
-    }
-
-    @Subscribe
-    private fun onGesture(glassGesture: GlassGesture) {
-        Log.v(TAG, glassGesture.gesture.name)
     }
 
     private fun writeToPhone(data: Any) {

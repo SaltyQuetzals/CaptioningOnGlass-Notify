@@ -62,7 +62,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         private var bluetoothSocket: BluetoothSocket? = null
 
         override fun run() {
-            val buffer = ByteArray(1024)
 
             bluetoothSocket = establishConnection()
             Log.v(TAG, "bluetoothSocket isConnected: ${bluetoothSocket?.isConnected}")
@@ -70,7 +69,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             while (bluetoothSocket?.isConnected == true && isRunning.get()) {
                 try {
                     val objectInputStream = ObjectInputStream(bluetoothSocket?.inputStream)
-                    val data = objectInputStream.readObject()
 
                     // TODO: Handle data
                 } catch (e: IOException) {
