@@ -1,11 +1,18 @@
 package edu.gatech.cog.notify.phone.fragments
 
+import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothSocket
+import android.content.Context
+import android.hardware.usb.UsbManager
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
+import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.content.getSystemService
 import androidx.fragment.app.Fragment
+import com.google.android.material.snackbar.Snackbar
 import com.google.zxing.BarcodeFormat
 import com.journeyapps.barcodescanner.BarcodeEncoder
 import edu.gatech.cog.notify.common.cogNotifyUUID
@@ -29,6 +36,16 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         connectedThread = ConnectedThread()
         connectedThread.start()
+
+        val manager =
+            this.activity?.applicationContext?.getSystemService(Context.USB_SERVICE) as UsbManager
+        val deviceList = manager.deviceList
+        Snackbar.make(view, "Listing attached devices...", Snackbar.LENGTH_SHORT).show()
+        Log.d(TAG, "")
+        deviceList.values.forEach { device ->
+            Toast.makeText(this.activity?.applicationContext, device.deviceName, Toast.LENGTH_SHORT)
+                .show()
+        }
 
         FragmentHomeBinding.bind(view).apply {
             ivQrCode.setImageBitmap(
@@ -83,6 +100,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             cancel()
         }
 
+        @SuppressLint("MissingPermission")
         private fun establishConnection(): BluetoothSocket? {
             val serverSocket = BluetoothAdapter.getDefaultAdapter()
                 .listenUsingRfcommWithServiceRecord("edu.gatech.cog.notify", cogNotifyUUID)
