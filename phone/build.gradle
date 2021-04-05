@@ -34,6 +34,13 @@ android {
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8.toString()
     }
+    sourceSets {
+        main {
+            assets {
+                srcDirs 'src/main/assets'
+            }
+        }
+    }
 }
 
 dependencies {
@@ -60,6 +67,16 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
-    // USBSerial (https://github.com/felHR85/UsbSerial/)
-    implementation 'com.github.felHR85:UsbSerial:6.1.0'
+    // Gson
+    implementation 'com.google.code.gson:gson:2.8.6'
+
+    // https://github.com/mik3y/usb-serial-for-android
+    implementation 'com.github.mik3y:usb-serial-for-android:3.3.1'
+
+    implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
+    implementation "io.reactivex.rxjava3:rxkotlin:3.0.0"
+    // Because RxAndroid releases are few and far between, it is recommended you also
+    // explicitly depend on RxJava's latest version for bug fixes and new features.
+    // (see https://github.com/ReactiveX/RxJava/releases for latest 3.x.x version)
+    implementation 'io.reactivex.rxjava3:rxjava:3.0.0'
 }

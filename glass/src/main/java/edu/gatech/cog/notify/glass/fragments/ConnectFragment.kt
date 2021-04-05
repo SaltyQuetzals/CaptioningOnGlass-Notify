@@ -47,8 +47,8 @@ class ConnectFragment : Fragment(R.layout.fragment_connect) {
                             // Unregister this receiver, we won't be calling it from now on
                             requireActivity().unregisterReceiver(this)
 
-                            // Start the BluetoothService with the desired device
-                            startBluetoothService(it)
+                            // Let's connect!
+                            connectToDevice(it.name)
                         }
                     }
                 }
@@ -63,23 +63,6 @@ class ConnectFragment : Fragment(R.layout.fragment_connect) {
                     if (isConnected) {
                         val audio =
                             context?.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-                        audio.playSoundEffect(GLASS_SOUND_SUCCESS)
-
-                        requireActivity().getSharedPreferences(
-                            Constants.SHARED_PREF,
-                            Context.MODE_PRIVATE
-                        )
-                            .edit()?.apply {
-                                putString(
-                                    Constants.SHARED_PREF_DEVICE_NAME,
-                                    intent.getStringExtra(Constants.EXTRA_DEVICE_NAME)
-                                )
-                                putString(
-                                    Constants.SHARED_PREF_DEVICE_ADDRESS,
-                                    intent.getStringExtra(Constants.EXTRA_DEVICE_ADDRESS)
-                                )
-                                apply()
-                            }
 
                         requireActivity().supportFragmentManager
                             .beginTransaction()
@@ -97,62 +80,10 @@ class ConnectFragment : Fragment(R.layout.fragment_connect) {
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.connect_fragment, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.action_delete -> {
-                requireActivity().getSharedPreferences(Constants.SHARED_PREF, Context.MODE_PRIVATE)
-                    .edit()?.apply {
-                        putString(
-                            Constants.SHARED_PREF_DEVICE_NAME, ""
-                        )
-                        putString(
-                            Constants.SHARED_PREF_DEVICE_ADDRESS, ""
-                        )
-                        apply()
-                    }
-
-                startQrCodeScanner()
-
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         _binding = FragmentConnectBinding.bind(view)
-
-        val sharedPref =
-            requireActivity().getSharedPreferences(Constants.SHARED_PREF, Context.MODE_PRIVATE)
-        val deviceName = sharedPref.getString(Constants.SHARED_PREF_DEVICE_NAME, "")!!
-        val deviceAddress = sharedPref.getString(Constants.SHARED_PREF_DEVICE_ADDRESS, "")!!
-
-        if (deviceName.isNotEmpty() && deviceAddress.isNotEmpty()) {
-            val pairedDevice = checkPairedDevices(deviceName)
-            pairedDevice?.let {
-                startBluetoothService(it)
-                return
-            } ?: run {
-                // Device is no longer in paired devices list
-                sharedPref.edit().apply {
-                    putString(Constants.SHARED_PREF_DEVICE_NAME, "")
-                    putString(Constants.SHARED_PREF_DEVICE_ADDRESS, "")
-                    apply()
-                }
-            }
-        }
 
         startQrCodeScanner()
     }
@@ -182,6 +113,7 @@ class ConnectFragment : Fragment(R.layout.fragment_connect) {
         BluetoothAdapter.getDefaultAdapter()
             .bondedDevices.iterator()
             .forEach {
+                Log.i("$TAG/checkPairedDevices", it.name)
                 if (it.name == deviceName) return it
             }
         return null
@@ -239,6 +171,7 @@ class ConnectFragment : Fragment(R.layout.fragment_connect) {
         BluetoothAdapter.getDefaultAdapter().cancelDiscovery()
     }
 
+    // Called when the QR Code scanner successfully scans.
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         IntentIntegrator.parseActivityResult(requestCode, resultCode, data)?.let { barcodeResult ->
