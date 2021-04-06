@@ -3,8 +3,10 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="../../../../layout/compose-model-1617667491563.xml" value="0.22" />
         <entry key="glass/src/main/res/menu/connect_fragment.xml" value="0.3234375" />
         <entry key="phone/src/main/res/layout/fragment_home.xml" value="0.2641843971631206" />
+        <entry key="phone/src/main/res/xml/device_filter.xml" value="0.3234375" />
       </map>
     </option>
   </component>
