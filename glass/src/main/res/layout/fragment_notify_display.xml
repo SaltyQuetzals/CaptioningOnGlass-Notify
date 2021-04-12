@@ -9,10 +9,10 @@
         android:id="@+id/tvContent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="@dimen/card_margin"
-        android:gravity="center"
-        android:text="Ready"
-        android:textSize="42sp"
-        tools:text="Car" />
+
+        android:gravity="bottom"
+        android:text="All right. Let's get started. You heard what the judge said. One man is dead, and now we must decide if another man will live or die. Premeditated murder is the most serious charge in our courts. If we vote guilty, we send him to the electric chair. That's mandatory."
+        android:textSize="30sp"
+        tools:text="All right. Let's get started. You heard what the judge said. One man is dead, and now we must decide if another man will live or die. Premeditated murder is the most serious charge in our courts. If we vote guilty, we send him to the electric chair. That's mandatory." />
 
 </LinearLayout>

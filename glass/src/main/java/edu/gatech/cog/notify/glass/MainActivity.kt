@@ -5,7 +5,11 @@ import android.view.MotionEvent
 import android.view.View
 import androidx.fragment.app.FragmentActivity
 import edu.gatech.cog.notify.glass.fragments.ConnectFragment
+<<<<<<< Updated upstream
 import org.greenrobot.eventbus.EventBus
+=======
+import edu.gatech.cog.notify.glass.fragments.NotifyDisplayFragment
+>>>>>>> Stashed changes
 
 class MainActivity : FragmentActivity() {
 
@@ -40,7 +44,7 @@ class MainActivity : FragmentActivity() {
 
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.frameLayoutMain, ConnectFragment.newInstance())
+            .replace(R.id.frameLayoutMain, NotifyDisplayFragment.newInstance())
             .commit()
     }
 
