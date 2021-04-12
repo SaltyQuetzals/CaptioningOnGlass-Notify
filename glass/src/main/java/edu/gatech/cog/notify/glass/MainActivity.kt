@@ -5,11 +5,8 @@ import android.view.MotionEvent
 import android.view.View
 import androidx.fragment.app.FragmentActivity
 import edu.gatech.cog.notify.glass.fragments.ConnectFragment
-<<<<<<< Updated upstream
-import org.greenrobot.eventbus.EventBus
-=======
 import edu.gatech.cog.notify.glass.fragments.NotifyDisplayFragment
->>>>>>> Stashed changes
+
 
 class MainActivity : FragmentActivity() {
 
@@ -26,32 +23,10 @@ class MainActivity : FragmentActivity() {
                 View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_FULLSCREEN
         }
 
-        gestureDetector =
-            GlassGestureDetector(this, object : GlassGestureDetector.OnGestureListener {
-                override fun onGesture(gesture: GlassGestureDetector.Gesture?): Boolean {
-                    val isHandled = when (gesture) {
-                        GlassGestureDetector.Gesture.TAP -> true
-                        else -> false
-                    }
-
-                    if (isHandled) {
-                        EventBus.getDefault().post(GlassGesture(gesture!!))
-                    }
-
-                    return isHandled
-                }
-            })
-
         supportFragmentManager
             .beginTransaction()
             .replace(R.id.frameLayoutMain, NotifyDisplayFragment.newInstance())
             .commit()
     }
 
-    override fun onGenericMotionEvent(event: MotionEvent?): Boolean {
-        event?.let {
-            return gestureDetector.onTouchEvent(it)
-        }
-        return super.onGenericMotionEvent(event)
-    }
 }

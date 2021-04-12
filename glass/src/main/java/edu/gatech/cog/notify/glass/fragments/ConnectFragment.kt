@@ -25,68 +25,7 @@ private val TAG = ConnectFragment::class.java.simpleName
 
 class ConnectFragment : Fragment(R.layout.fragment_connect) {
 
-<<<<<<< Updated upstream
-    private var _binding: FragmentConnectBinding? = null
-    private val binding get() = _binding!!
 
-    private var deviceName = ""
-
-    private var pairDeviceReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            if (intent.action == BluetoothDevice.ACTION_FOUND) {
-                intent.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)?.let {
-                    if (it.name == deviceName) {
-                        BluetoothAdapter.getDefaultAdapter().cancelDiscovery()
-                        requireActivity().unregisterReceiver(this)
-
-                        startBluetoothService(it)
-                    }
-                }
-            }
-        }
-    }
-
-    private var deviceStatusReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            intent?.getBooleanExtra(Constants.EXTRA_DEVICE_IS_CONNECTED, false)
-                ?.let { isConnected ->
-                    if (isConnected) {
-                        val audio =
-                            context?.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-                        audio.playSoundEffect(GLASS_SOUND_SUCCESS)
-
-                        requireActivity().getSharedPreferences(
-                            Constants.SHARED_PREF,
-                            Context.MODE_PRIVATE
-                        )
-                            .edit()?.apply {
-                                putString(
-                                    Constants.SHARED_PREF_DEVICE_NAME,
-                                    intent.getStringExtra(Constants.EXTRA_DEVICE_NAME)
-                                )
-                                putString(
-                                    Constants.SHARED_PREF_DEVICE_ADDRESS,
-                                    intent.getStringExtra(Constants.EXTRA_DEVICE_ADDRESS)
-                                )
-                                apply()
-                            }
-
-                        requireActivity().supportFragmentManager
-                            .beginTransaction()
-                            .replace(
-                                R.id.frameLayoutMain,
-                                NotifyDisplayFragment.newInstance()
-                            )
-                            .commit()
-                    } else {
-                        binding.tvConnectStatus.text =
-                            "Failed to connect. Please quit both apps and try again."
-                    }
-                }
-
-        }
-    }
-=======
 //    private var _binding: FragmentConnectBinding? = null
 //    private val binding get() = _binding!!
 //
@@ -140,7 +79,6 @@ class ConnectFragment : Fragment(R.layout.fragment_connect) {
 //
 //        }
 //    }
->>>>>>> Stashed changes
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -179,31 +117,8 @@ class ConnectFragment : Fragment(R.layout.fragment_connect) {
 
 //        _binding = FragmentConnectBinding.bind(view)
 
-<<<<<<< Updated upstream
-        val sharedPref =
-            requireActivity().getSharedPreferences(Constants.SHARED_PREF, Context.MODE_PRIVATE)
-        val deviceName = sharedPref.getString(Constants.SHARED_PREF_DEVICE_NAME, "")!!
-        val deviceAddress = sharedPref.getString(Constants.SHARED_PREF_DEVICE_ADDRESS, "")!!
 
-        if (deviceName.isNotEmpty() && deviceAddress.isNotEmpty()) {
-            val pairedDevice = checkPairedDevices(deviceName)
-            pairedDevice?.let {
-                startBluetoothService(it)
-                return
-            } ?: run {
-                // Device is no longer in paired devices list
-                sharedPref.edit().apply {
-                    putString(Constants.SHARED_PREF_DEVICE_NAME, "")
-                    putString(Constants.SHARED_PREF_DEVICE_ADDRESS, "")
-                    apply()
-                }
-            }
-        }
-
-        startQrCodeScanner()
-=======
 //        startQrCodeScanner()
->>>>>>> Stashed changes
     }
 
     private fun startQrCodeScanner() {
@@ -215,15 +130,7 @@ class ConnectFragment : Fragment(R.layout.fragment_connect) {
             .initiateScan()
     }
 
-<<<<<<< Updated upstream
-    private fun connectToDevice(deviceName: String) {
-        checkPairedDevices(deviceName)?.let {
-            startBluetoothService(it)
-        } ?: run {
-            pairDevice(deviceName)
-        }
-    }
-=======
+
 //    private fun connectToDevice(deviceName: String) {
 //        checkPairedDevices(deviceName)?.let {
 //            Log.i("$TAG/connectToDevice", "$deviceName seen before, going to startBluetoothService")
@@ -234,7 +141,6 @@ class ConnectFragment : Fragment(R.layout.fragment_connect) {
 //            pairDevice(deviceName)
 //        }
 //    }
->>>>>>> Stashed changes
 
     private fun checkPairedDevices(deviceName: String): BluetoothDevice? {
         BluetoothAdapter.getDefaultAdapter()
@@ -245,33 +151,7 @@ class ConnectFragment : Fragment(R.layout.fragment_connect) {
         return null
     }
 
-<<<<<<< Updated upstream
-    private fun pairDevice(deviceName: String) {
-        val isDiscovering = BluetoothAdapter.getDefaultAdapter().startDiscovery()
 
-        if (isDiscovering) {
-            this.deviceName = deviceName
-            requireActivity().registerReceiver(
-                pairDeviceReceiver,
-                IntentFilter(BluetoothDevice.ACTION_FOUND)
-            )
-        } else {
-            Log.e(TAG, "pairDevice startDiscovery false")
-        }
-    }
-
-    private fun startBluetoothService(bluetoothDevice: BluetoothDevice) {
-        requireActivity().registerReceiver(
-            deviceStatusReceiver,
-            IntentFilter(Constants.INTENT_FILTER_DEVICE_CONNECT_STATUS)
-        )
-        requireActivity().startService(Intent(activity, SourceConnectionService::class.java).apply {
-            putExtra(
-                Constants.EXTRA_BLUETOOTH_DEVICE, bluetoothDevice
-            )
-        })
-    }
-=======
 //    private fun pairDevice(deviceName: String) {
 //        Log.i("$TAG/pairDevice", "Attempting to start discovering devices...")
 //        val isDiscovering = BluetoothAdapter.getDefaultAdapter().startDiscovery()
@@ -302,7 +182,6 @@ class ConnectFragment : Fragment(R.layout.fragment_connect) {
 //            )
 //        })
 //    }
->>>>>>> Stashed changes
 
     override fun onDestroyView() {
 //        _binding = null
@@ -325,24 +204,7 @@ class ConnectFragment : Fragment(R.layout.fragment_connect) {
 //        BluetoothAdapter.getDefaultAdapter().cancelDiscovery()
     }
 
-<<<<<<< Updated upstream
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        IntentIntegrator.parseActivityResult(requestCode, resultCode, data)?.let { barcodeResult ->
-            barcodeResult.contents?.let { barcodeContents ->
-                requireActivity().runOnUiThread {
-                    binding.tvConnectStatus.text =
-                        "Attempting to connect to \"$barcodeContents...\""
-                }
-                connectToDevice(barcodeContents)
-            } ?: run {
-                requireActivity().runOnUiThread {
-                    binding.tvConnectStatus.text = "Error while scanning QR code."
-                }
-            }
-        }
-    }
-=======
+
     // Called when the QR Code scanner successfully scans.
 //    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 //        super.onActivityResult(requestCode, resultCode, data)
@@ -360,7 +222,6 @@ class ConnectFragment : Fragment(R.layout.fragment_connect) {
 //            }
 //        }
 //    }
->>>>>>> Stashed changes
 
     companion object {
         fun newInstance() = ConnectFragment()
