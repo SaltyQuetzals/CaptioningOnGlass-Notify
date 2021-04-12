@@ -12,7 +12,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
-import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import com.google.zxing.BarcodeFormat
@@ -26,14 +25,13 @@ import edu.gatech.cog.notify.phone.R
 import edu.gatech.cog.notify.phone.databinding.FragmentHomeBinding
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.kotlin.Observables.combineLatest
 import io.reactivex.rxjava3.kotlin.toObservable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import io.reactivex.rxjava3.subjects.BehaviorSubject
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
-import android.R.attr.name
-import io.reactivex.rxjava3.disposables.Disposable
-import io.reactivex.rxjava3.kotlin.Observables.combineLatest
 
 
 private val TAG = HomeFragment::class.java.simpleName
@@ -169,7 +167,10 @@ class HomeFragment : Fragment(R.layout.fragment_home), SerialInputOutputManager.
                     shouldSendMessageToGlassObservable.subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe { (isLookingAtSpeaker, caption) ->
-                            Log.d("$TAG/sendMessageToGlass", "isLookingAtSpeaker: $isLookingAtSpeaker")
+                            Log.d(
+                                "$TAG/sendMessageToGlass",
+                                "isLookingAtSpeaker: $isLookingAtSpeaker"
+                            )
                             Log.d("$TAG/sendMessageToGlass", "speakerId: ${caption.id}")
                             Log.d("$TAG/sendMessageToGlass", "text: ${caption.text}")
                             connectedThread.write(
@@ -178,7 +179,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), SerialInputOutputManager.
                                         caption.text
                                     } else {
                                         ""
-                                    }, false
+                                    }, false, caption.duration
                                 )
                             )
                         }
