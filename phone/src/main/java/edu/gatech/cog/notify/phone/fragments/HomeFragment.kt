@@ -164,6 +164,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), SerialInputOutputManager.
             )
 
             btnNotify.setOnClickListener {
+                Log.d(TAG, "Send button clicked!")
                 shouldSendMessageToGlassDisposable =
                     shouldSendMessageToGlassObservable.subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
@@ -193,6 +194,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), SerialInputOutputManager.
 
     override fun onNewData(data: ByteArray) {
         var dataAsString = String(data)
+//        Log.d("$TAG/onNewData", "dataAsString = $dataAsString")
         lookingAtSubject.onNext(
             if (dataAsString == "none") {
                 null
