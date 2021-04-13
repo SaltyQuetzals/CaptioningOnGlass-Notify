@@ -20,7 +20,7 @@ class MainActivity : FragmentActivity() {
 
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.frameLayoutMain, NotifyDisplayFragment.newInstance())
+            .replace(R.id.frameLayoutMain, ConnectFragment.newInstance())
             .commit()
     }
 }

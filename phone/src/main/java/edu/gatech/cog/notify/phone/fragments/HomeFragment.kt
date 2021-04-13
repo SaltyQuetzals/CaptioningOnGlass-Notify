@@ -131,7 +131,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), SerialInputOutputManager.
 
         serialPort = driver.ports[0]
         serialPort.open(connection)
-        serialPort.setParameters(115200, 8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE)
+        serialPort.setParameters(9600, 8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE)
         serialPort.dtr = true
         serialPort.rts = true
         Log.d(TAG, "Serial port opened!")
@@ -140,13 +140,13 @@ class HomeFragment : Fragment(R.layout.fragment_home), SerialInputOutputManager.
         usbIoManager.readBufferSize = 100
         Executors.newSingleThreadExecutor().submit(usbIoManager)
 
-        isLookingAtSpeakerObservable =
-            combineLatest(
-                // Don't emit for duplicates or garbage values
-                lookingAtSubject.distinctUntilChanged().filter { lookingAt -> lookingAt != "" },
-                captionsObservable
-            )
-                .map { (lookingAt, caption) -> lookingAt == caption.id }
+        isLookingAtSpeakerObservable = Observable.just(true).repeat(100000);
+//            combineLatest(
+//                // Don't emit for duplicates or garbage values
+//                lookingAtSubject.distinctUntilChanged().filter { lookingAt -> lookingAt != "" },
+//                captionsObservable
+//            )
+//                .map { (lookingAt, caption) -> lookingAt == caption.id }.map { true }
 
         shouldSendMessageToGlassObservable =
             combineLatest(isLookingAtSpeakerObservable, captionsObservable)
@@ -164,8 +164,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), SerialInputOutputManager.
             btnNotify.setOnClickListener {
                 Log.d(TAG, "Send button clicked!")
                 shouldSendMessageToGlassDisposable =
-                    shouldSendMessageToGlassObservable.subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
+                    shouldSendMessageToGlassObservable
                         .subscribe { (isLookingAtSpeaker, caption) ->
                             Log.d(
                                 "$TAG/sendMessageToGlass",
@@ -194,13 +193,12 @@ class HomeFragment : Fragment(R.layout.fragment_home), SerialInputOutputManager.
     }
 
     override fun onNewData(data: ByteArray) {
-        var dataAsString = String(data)
+        val dataAsString = String(data).trim()
 //        Log.d("$TAG/onNewData", "dataAsString = $dataAsString")
         lookingAtSubject.onNext(
             if (dataAsString == "none") {
                 null
             } else {
-                dataAsString = dataAsString.trim()
                 when (dataAsString) {
                     "0" -> "juror-a"
                     "1" -> "juror-b"
