@@ -59,7 +59,7 @@ class NotifyDisplayFragment : Fragment(R.layout.fragment_notify_display) {
 
     override fun onStart() {
         super.onStart()
-        EventBus.getDefault().register(this)
+//        EventBus.getDefault().register(this)
     }
 
     override fun onDestroy() {
