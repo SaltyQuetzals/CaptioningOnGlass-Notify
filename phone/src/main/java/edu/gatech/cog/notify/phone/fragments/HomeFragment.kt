@@ -28,7 +28,6 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.Observables.combineLatest
 import io.reactivex.rxjava3.kotlin.toObservable
-import io.reactivex.rxjava3.schedulers.Schedulers
 import io.reactivex.rxjava3.subjects.BehaviorSubject
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -73,7 +72,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), SerialInputOutputManager.
     private lateinit var isLookingAtSpeakerObservable: Observable<Boolean>
     private lateinit var shouldSendMessageToGlassObservable: Observable<Pair<Boolean, Caption>>
     private lateinit var shouldSendMessageToGlassDisposable: Disposable
-    lateinit var device: UsbDevice
+    private lateinit var device: UsbDevice
 
 
     private fun loadJSONFromAsset(context: Context, assetName: String): String {
@@ -112,6 +111,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), SerialInputOutputManager.
 
         // This block of code basically tries to do two things in order:
         // 1. Retrieve the already-connected USB device
+        // 2. Request permission for the USB device.
         device =
             activity?.intent?.getParcelableExtra(UsbManager.EXTRA_DEVICE) ?: run {
                 val permissionIntent = PendingIntent.getBroadcast(
@@ -140,13 +140,16 @@ class HomeFragment : Fragment(R.layout.fragment_home), SerialInputOutputManager.
         usbIoManager.readBufferSize = 100
         Executors.newSingleThreadExecutor().submit(usbIoManager)
 
-        isLookingAtSpeakerObservable = Observable.just(true).repeat(100000);
-//            combineLatest(
-//                // Don't emit for duplicates or garbage values
-//                lookingAtSubject.distinctUntilChanged().filter { lookingAt -> lookingAt != "" },
-//                captionsObservable
-//            )
-//                .map { (lookingAt, caption) -> lookingAt == caption.id }.map { true }
+        isLookingAtSpeakerObservable = combineLatest(
+            // Don't emit for duplicates or garbage values
+            lookingAtSubject.distinctUntilChanged()
+                .filter { lookingAt -> lookingAt != "" },
+            captionsObservable
+        )
+            .map { (lookingAt, caption) ->
+                Log.d("$TAG/isLookingAtSpeaker$", lookingAt)
+                lookingAt == caption.id
+            }
 
         shouldSendMessageToGlassObservable =
             combineLatest(isLookingAtSpeakerObservable, captionsObservable)
@@ -163,49 +166,50 @@ class HomeFragment : Fragment(R.layout.fragment_home), SerialInputOutputManager.
 
             btnNotify.setOnClickListener {
                 Log.d(TAG, "Send button clicked!")
-                shouldSendMessageToGlassDisposable =
-                    shouldSendMessageToGlassObservable
-                        .subscribe { (isLookingAtSpeaker, caption) ->
-                            Log.d(
-                                "$TAG/sendMessageToGlass",
-                                "isLookingAtSpeaker: $isLookingAtSpeaker"
-                            )
-                            Log.d("$TAG/sendMessageToGlass", "speakerId: ${caption.id}")
-                            Log.d("$TAG/sendMessageToGlass", "text: ${caption.text}")
-                            connectedThread.write(
-                                GlassNotification(
-                                    if (isLookingAtSpeaker) {
-                                        caption.text
-                                    } else {
-                                        ""
-                                    }, false, caption.duration
+                requireActivity().runOnUiThread {
+                    shouldSendMessageToGlassDisposable =
+                        shouldSendMessageToGlassObservable
+                            .subscribe({ (isLookingAtSpeaker, caption) ->
+                                Log.d(
+                                    "$TAG/sendMessageToGlass",
+                                    "isLookingAtSpeaker: $isLookingAtSpeaker"
                                 )
+                                Log.d("$TAG/sendMessageToGlass", "speakerId: ${caption.id}")
+                                Log.d("$TAG/sendMessageToGlass", "text: ${caption.text}")
+                                connectedThread.write(
+                                    GlassNotification(
+                                        if (isLookingAtSpeaker) {
+                                            caption.text
+                                        } else {
+                                            ""
+                                        }, false, caption.duration
+                                    )
+                                )
+                            },
+                                { e -> Log.e(TAG, e.message.toString()) }
                             )
-                        }
-//                captionsObservable.subscribeOn(Schedulers.io())
-//                    .observeOn(AndroidSchedulers.mainThread())
-//                    .subscribe({ caption ->
-//                        Snackbar.make(view, caption.text, caption.duration.toInt()).show()
-//                        connectedThread.write(GlassNotification(caption.text, false))
-//                    }, { e -> Log.e(TAG, e.message.toString()) })
+                }
             }
         }
     }
 
     override fun onNewData(data: ByteArray) {
-        val dataAsString = String(data).trim()
-//        Log.d("$TAG/onNewData", "dataAsString = $dataAsString")
+        val splitData = String(data).trim().split("\n")
+        if (splitData.isEmpty() || splitData[0] == "") {
+            return
+        }
+
+        // https://stackoverflow.com/a/48531720
+        val mostCommonElement =
+            splitData.groupingBy { it }.eachCount().maxByOrNull { it.value }!!.key
         lookingAtSubject.onNext(
-            if (dataAsString == "none") {
-                null
-            } else {
-                when (dataAsString) {
-                    "0" -> "juror-a"
-                    "1" -> "juror-b"
-                    "2" -> "juror-c"
-                    "3" -> "jury-foreman"
-                    else -> ""
-                }
+            when (mostCommonElement) {
+                "0" -> "juror-a"
+                "1" -> "juror-b"
+                "2" -> "juror-c"
+                "3" -> "jury-foreman"
+                "X" -> "X"
+                else -> ""
             }
         )
     }
