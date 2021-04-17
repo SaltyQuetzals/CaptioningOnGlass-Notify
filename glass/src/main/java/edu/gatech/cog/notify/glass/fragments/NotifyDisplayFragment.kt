@@ -40,9 +40,9 @@ class NotifyDisplayFragment : Fragment(R.layout.fragment_notify_display) {
             }
         }
 
-        requireActivity().runOnUiThread {
-            binding.tvContent.text = glassNotification.text
-        }
+//        requireActivity().runOnUiThread {
+//            binding.tvContent.text = glassNotification.text
+//        }
     }
 
     @Subscribe

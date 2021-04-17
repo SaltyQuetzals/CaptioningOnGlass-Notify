@@ -1,29 +1,33 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<?xml version="1.0" encoding="utf-8"?> <LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:example="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragments.NotifyDisplayFragment">
+    android:orientation="vertical">
 
-    <ScrollView
-        android:id="@+id/scrollView"
+    <android.lib.widget.verticalmarqueetextview.VerticalMarqueeTextView
+
         android:layout_width="match_parent"
-        android:layout_height="190dp">
 
-        <TextView
-            android:id="@+id/tvContent"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+        android:layout_height="match_parent"
 
-            android:gravity="bottom"
+        android:layout_gravity="center_horizontal"
 
-            android:maxLines="600"
-            android:scrollbars="vertical"
-            android:text="All right. Let's get started. You heard what the judge said. One man is dead, and now we must decide if another man will live or die. Premeditated murder is the most serious charge in our courts. If we vote guilty, we send him to the electric chair. That's mandatory."
-            android:textSize="30sp"
-            tools:text="All right. Let's get started. You heard what the judge said. One man is dead, and now we must decide if another man will live or die. Premeditated murder is the most serious charge in our courts. If we vote guilty, we send him to the electric chair. That's mandatory." />
+        android:layout_weight="1"
 
+        example:marqueeSpeed="17"
 
-    </ScrollView>
+        example:text="All right. Let's get started. You heard what the judge said. One man is dead, and now we must decide if another man will live or die. Premeditated murder is the most serious charge in our courts. If we vote guilty, we send him to the electric chair. That's mandatory."
 
-</LinearLayout>
+        example:textColor="@android:color/white"
+
+        example:textSize="20dp"
+
+        example:textStyle="bold" />
+    <View
+
+        android:layout_width="match_parent"
+
+        android:layout_height="0dp"
+
+        android:layout_weight="1" /> </LinearLayout>

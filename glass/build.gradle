@@ -38,7 +38,9 @@ dependencies {
 
     implementation 'com.journeyapps:zxing-android-embedded:3.6.0'
 
+    compile 'android.lib.verticalmarqueetextview:VerticalMarqueeTextView:+'
 }
 repositories {
     mavenCentral()
+    jcenter()
 }
