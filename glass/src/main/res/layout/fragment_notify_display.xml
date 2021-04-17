@@ -5,14 +5,25 @@
     android:layout_height="match_parent"
     tools:context=".fragments.NotifyDisplayFragment">
 
-    <TextView
-        android:id="@+id/tvContent"
+    <ScrollView
+        android:id="@+id/scrollView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="190dp">
 
-        android:gravity="bottom"
-        android:text="All right. Let's get started. You heard what the judge said. One man is dead, and now we must decide if another man will live or die. Premeditated murder is the most serious charge in our courts. If we vote guilty, we send him to the electric chair. That's mandatory."
-        android:textSize="30sp"
-        tools:text="All right. Let's get started. You heard what the judge said. One man is dead, and now we must decide if another man will live or die. Premeditated murder is the most serious charge in our courts. If we vote guilty, we send him to the electric chair. That's mandatory." />
+        <TextView
+            android:id="@+id/tvContent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+
+            android:gravity="bottom"
+
+            android:maxLines="600"
+            android:scrollbars="vertical"
+            android:text="All right. Let's get started. You heard what the judge said. One man is dead, and now we must decide if another man will live or die. Premeditated murder is the most serious charge in our courts. If we vote guilty, we send him to the electric chair. That's mandatory."
+            android:textSize="30sp"
+            tools:text="All right. Let's get started. You heard what the judge said. One man is dead, and now we must decide if another man will live or die. Premeditated murder is the most serious charge in our courts. If we vote guilty, we send him to the electric chair. That's mandatory." />
+
+
+    </ScrollView>
 
 </LinearLayout>
