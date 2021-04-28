@@ -24,8 +24,6 @@ class NotifyDisplayFragment : Fragment(R.layout.fragment_notify_display) {
     private val CHUNK_SIZE = 6
     private var _binding: FragmentNotifyDisplayBinding? = null
     private val binding get() = _binding!!
-    private lateinit var windowedCaptionObservable: Observable<String>
-    private lateinit var windowedCaptionDisposable: Disposable
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -35,12 +33,11 @@ class NotifyDisplayFragment : Fragment(R.layout.fragment_notify_display) {
     @Subscribe
     fun onReceiveNotification(glassNotification: GlassNotification) {
         // Reset the TextView content.
-        requireActivity().runOnUiThread {
-            binding.tvContent.text = ""
-        }
-        if (this::windowedCaptionDisposable.isInitialized && !windowedCaptionDisposable.isDisposed) {
-            // We're about to replace the observable, so we need to clean up the disposable attached to it
-            windowedCaptionDisposable.dispose()
+        if (glassNotification.isClear) {
+            requireActivity().runOnUiThread {
+                binding.tvContent.text = ""
+            }
+            return
         }
         Log.v(TAG, "GlassNotification\n${glassNotification.text}: ${glassNotification.isVibrate}")
 
@@ -52,22 +49,11 @@ class NotifyDisplayFragment : Fragment(R.layout.fragment_notify_display) {
             }
         }
 
-        val chunks = glassNotification.text.split(" ").chunked(CHUNK_SIZE) { it.joinToString(" ") }
-        windowedCaptionObservable =
-            chunks.withIndex().toObservable().concatMap { (i, chunk) ->
-                if (i == 0) {
-                    Observable.just(chunk)
-                } else {
-                    Observable.just(" $chunk")
-                        .delay(glassNotification.duration / chunks.size, TimeUnit.MILLISECONDS)
-                }
-            }
+        Log.d(TAG, "Appending '${glassNotification.text}' to tvContent")
+        requireActivity().runOnUiThread {
+            binding.tvContent.append(glassNotification.text)
+        }
 
-        windowedCaptionDisposable =
-            windowedCaptionObservable.observeOn(AndroidSchedulers.mainThread()).subscribe {
-                Log.d(TAG, "Appending '$it' to tvContent")
-                binding.tvContent.append(it)
-            }
 
     }
 

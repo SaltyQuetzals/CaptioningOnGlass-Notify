@@ -8,5 +8,5 @@ import java.io.Serializable
 data class GlassNotification(
     val text: String,
     val isVibrate: Boolean,
-    val duration: Long
+    val isClear: Boolean
 ) : Parcelable, Serializable

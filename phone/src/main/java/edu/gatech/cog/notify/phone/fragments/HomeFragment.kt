@@ -64,11 +64,14 @@ private val usbReceiver = object : BroadcastReceiver() {
 
 class HomeFragment : Fragment(R.layout.fragment_home), SerialInputOutputManager.Listener {
 
+    private val CHUNK_SIZE = 6
     private lateinit var serialPort: UsbSerialPort
     private lateinit var fragmentContext: Context
     private lateinit var connectedThread: ConnectedThread
+
     private val lookingAtSubject = BehaviorSubject.create<String>()
     private lateinit var captionsObservable: Observable<Caption>
+
     private lateinit var isLookingAtSpeakerObservable: Observable<Boolean>
     private lateinit var shouldSendMessageToGlassObservable: Observable<Pair<Boolean, Caption>>
     private lateinit var shouldSendMessageToGlassDisposable: Disposable
@@ -85,12 +88,27 @@ class HomeFragment : Fragment(R.layout.fragment_home), SerialInputOutputManager.
         val captions = gson.fromJson(captionsJSONString, Array<Caption>::class.java)
 
         captionsObservable = captions.withIndex().toObservable().concatMap { (i, caption) ->
+            val chunks = caption.text.split(" ").chunked(CHUNK_SIZE) { it.joinToString(" ") }
+            val chunkedObservable = chunks.withIndex().toObservable().concatMap { (j, chunk) ->
+                val chunkCaption = Caption(
+                    text = " $chunk",
+                    id = caption.id,
+                    duration = caption.duration / chunks.size
+                )
+                if (j == 0) {
+                    Observable.just(chunkCaption)
+                } else {
+                    Observable.just(chunkCaption)
+                        .delay(caption.duration / chunks.size, TimeUnit.MILLISECONDS)
+                }
+            }
+
             if (i == 0) {
                 // Don't add any delay to the first caption, just emit it
-                Observable.just(caption)
+                chunkedObservable
             } else {
                 // Delay the emission of this caption by the previous caption's duration
-                Observable.just(caption).delay(captions[i - 1].duration, TimeUnit.MILLISECONDS)
+                chunkedObservable.delay(captions[i - 1].duration, TimeUnit.MILLISECONDS)
             }
         }
 
@@ -147,13 +165,12 @@ class HomeFragment : Fragment(R.layout.fragment_home), SerialInputOutputManager.
             captionsObservable
         )
             .map { (lookingAt, caption) ->
-                Log.d("$TAG/isLookingAtSpeaker$", lookingAt)
+                Log.d(TAG, "looking at: $lookingAt")
                 lookingAt == caption.id
             }
 
         shouldSendMessageToGlassObservable =
             combineLatest(isLookingAtSpeakerObservable, captionsObservable)
-
         FragmentHomeBinding.bind(view).apply {
             ivQrCode.setImageBitmap(
                 BarcodeEncoder().encodeBitmap(
@@ -170,24 +187,23 @@ class HomeFragment : Fragment(R.layout.fragment_home), SerialInputOutputManager.
                     shouldSendMessageToGlassDisposable =
                         shouldSendMessageToGlassObservable
                             .subscribe({ (isLookingAtSpeaker, caption) ->
-                                Log.d(
-                                    "$TAG/sendMessageToGlass",
-                                    "isLookingAtSpeaker: $isLookingAtSpeaker"
-                                )
-                                Log.d("$TAG/sendMessageToGlass", "speakerId: ${caption.id}")
-                                Log.d("$TAG/sendMessageToGlass", "text: ${caption.text}")
                                 connectedThread.write(
                                     GlassNotification(
                                         if (isLookingAtSpeaker) {
                                             caption.text
                                         } else {
                                             ""
-                                        }, false, caption.duration
+                                        }, false, caption.text.trim() == "CLEAR"
                                     )
                                 )
                             },
                                 { e -> Log.e(TAG, e.message.toString()) }
                             )
+                }
+            }
+            lookingAtSubject.subscribe { lookingAt ->
+                requireActivity().runOnUiThread {
+                    currentSpeaker.text = lookingAt
                 }
             }
         }
@@ -200,6 +216,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), SerialInputOutputManager.
         }
 
         // https://stackoverflow.com/a/48531720
+//        Log.d("$TAG/onNewData", splitData.toString())
         val mostCommonElement =
             splitData.groupingBy { it }.eachCount().maxByOrNull { it.value }!!.key
         lookingAtSubject.onNext(
@@ -208,7 +225,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), SerialInputOutputManager.
                 "1" -> "juror-b"
                 "2" -> "juror-c"
                 "3" -> "jury-foreman"
-                "X" -> "X"
+                "9" -> "nobody"
                 else -> ""
             }
         )
@@ -226,7 +243,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), SerialInputOutputManager.
     override fun onDestroy() {
         super.onDestroy()
         connectedThread.cancel()
-        serialPort.close()
+//        serialPort.close()
         shouldSendMessageToGlassDisposable.dispose()
     }
 
