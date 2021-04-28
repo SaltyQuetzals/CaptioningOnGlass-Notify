@@ -10,13 +10,18 @@ import edu.gatech.cog.notify.common.GLASS_SOUND_TAP
 import edu.gatech.cog.notify.common.models.GlassNotification
 import edu.gatech.cog.notify.glass.R
 import edu.gatech.cog.notify.glass.databinding.FragmentNotifyDisplayBinding
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.kotlin.toObservable
+import java.util.concurrent.TimeUnit
 
 private val TAG = NotifyDisplayFragment::class.java.simpleName
 
 class NotifyDisplayFragment : Fragment(R.layout.fragment_notify_display) {
-
+    private val CHUNK_SIZE = 6
     private var _binding: FragmentNotifyDisplayBinding? = null
     private val binding get() = _binding!!
 
@@ -27,6 +32,13 @@ class NotifyDisplayFragment : Fragment(R.layout.fragment_notify_display) {
 
     @Subscribe
     fun onReceiveNotification(glassNotification: GlassNotification) {
+        // Reset the TextView content.
+        if (glassNotification.isClear) {
+            requireActivity().runOnUiThread {
+                binding.tvContent.text = ""
+            }
+            return
+        }
         Log.v(TAG, "GlassNotification\n${glassNotification.text}: ${glassNotification.isVibrate}")
 
         if (glassNotification.isVibrate) {
@@ -37,9 +49,12 @@ class NotifyDisplayFragment : Fragment(R.layout.fragment_notify_display) {
             }
         }
 
+        Log.d(TAG, "Appending '${glassNotification.text}' to tvContent")
         requireActivity().runOnUiThread {
-            binding.tvContent.text = glassNotification.text
+            binding.tvContent.append(glassNotification.text)
         }
+
+
     }
 
     private fun writeToPhone(data: Any) {

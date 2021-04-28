@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.FragmentActivity
 import edu.gatech.cog.notify.glass.fragments.ConnectFragment
+import edu.gatech.cog.notify.glass.fragments.NotifyDisplayFragment
 
 class MainActivity : FragmentActivity() {
 
