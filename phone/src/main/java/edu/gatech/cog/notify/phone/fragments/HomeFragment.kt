@@ -12,6 +12,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
+import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import com.google.zxing.BarcodeFormat
@@ -128,8 +129,8 @@ class HomeFragment : Fragment(R.layout.fragment_home), SerialInputOutputManager.
             fragmentContext.getSystemService(Context.USB_SERVICE) as UsbManager
 
         // This block of code basically tries to do two things in order:
-        // 1. Retrieve the already-connected USB device
-        // 2. Request permission for the USB device.
+        // 1. Retrieve the already-connected USB device, if possible
+        // 2. Request permission for the USB device that's connected, if #1 fails.
         device =
             activity?.intent?.getParcelableExtra(UsbManager.EXTRA_DEVICE) ?: run {
                 val permissionIntent = PendingIntent.getBroadcast(
@@ -140,6 +141,18 @@ class HomeFragment : Fragment(R.layout.fragment_home), SerialInputOutputManager.
                 val filter = IntentFilter(ACTION_USB_PERMISSION)
                 activity?.registerReceiver(usbReceiver, filter)
                 val availableDrivers = UsbSerialProber.getDefaultProber().findAllDrivers(manager)
+                if (availableDrivers.isEmpty()) {
+                    FragmentHomeBinding.bind(view).apply {
+                        requireActivity().runOnUiThread {
+                            Snackbar.make(
+                                view,
+                                "No USB device detected. Connect one and restart the app.",
+                                Snackbar.LENGTH_INDEFINITE
+                            ).show()
+                        }
+                        return
+                    }
+                }
                 val driver = availableDrivers[0]
                 manager.requestPermission(driver.device, permissionIntent)
                 driver.device
